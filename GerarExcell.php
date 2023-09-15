@@ -3,7 +3,8 @@
 require("config.php");
 
 // Consulta ao banco de dados
-$query = "SELECT * FROM atiradores where ID_turma = 1";
+$id_turma = $_GET['ID_turma'];
+$query = "SELECT * FROM atiradores where ID_turma = $id_turma order by Numero";
 $consulta = $conn->prepare($query);
 $consulta->execute();
 $resultado = $consulta->fetchAll(PDO::FETCH_OBJ);

@@ -11,7 +11,6 @@ $PegarAno = "select * from turma where ID = {$id_turma}"; //pega o ano da turma 
 $ano = mysqli_query($conexao, $PegarAno);
 $row2 = mysqli_fetch_array($ano); //seleciona cada registro por ordem
 
-
 //adiciona os dados ao banco de dados do tg
 
 if (!(isset($_POST['Salvar']))) {
@@ -52,7 +51,7 @@ if (!(isset($_POST['Salvar']))) {
     }
     $qtds = $_GET['qts'];
     //altera o numero de faltas de acordo com o mes
-    $teste2 = "update atiradores set $mes = $mes + $qtds, TotalF = Marco + Abril + Maio + Junho + Julho + Agosto + Setembro + Outubro + Novembro where ID_turma = '$id_turma' and ID_ATDRS = '$id'";
+    $teste2 = "update atiradores set $mes = $mes + $qtds, TotalF = Marco + Abril + Maio + Junho + Julho + Agosto + Setembro + Outubro + Novembro, FaltaPDesligado = (120 - TotalF) where ID_turma = '$id_turma' and ID_ATDRS = '$id'";
     mysqli_query($conexao, $teste2);
     $_POST = 0;
     $mensagem = "Foram adicionados " . $qtds . " pontos no mês de " . $mes . " ao Atdr {$row3['NomeG']}";
@@ -179,7 +178,9 @@ if (mysqli_num_rows($resultado) >= 1) {
               <th scope="col">Outubro</th>
               <th scope="col">Novembro</th>
               <th scope="col">Total</th>
-              <th scope="col">Total</th>
+              <th scope="col">Pontos para ser desligado</th>
+              <th scope="col">Adicionar</th>
+              <th scope="col">Remover</th>
             </tr>
           </thead>
           <tbody>
@@ -197,6 +198,7 @@ if (mysqli_num_rows($resultado) >= 1) {
                 <td><?= $linha['Outubro'] ?></td>
                 <td><?= $linha['Novembro'] ?></td>
                 <td><?= $linha['TotalF'] ?></td>
+                <td><?= $linha['FaltaPDesligado'] ?></td>
                 <td>
                   <a href="Faltas.php?ID_turma=<?= $linha["ID_turma"] ?>&qts=2&id=<?= $linha["ID_ATDRS"] ?>">
                     <button type="button" class="btn btn-outline-primary"><i class="fa-solid fa-plus"></i></button>

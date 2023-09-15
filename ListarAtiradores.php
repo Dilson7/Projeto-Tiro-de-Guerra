@@ -149,10 +149,10 @@ if ($consulta_turma->rowCount() >= 1) {
         <center>
           <h2 class="card-title">Atiradores da turma <?=$resultado_turma->Ano?></h2>
           <a href="ListarAtiradores.php?ID_turma=<?= $id_turma ?>" class="btn btn-primary btn-sm">Atualizar</a>
+          <?php if ($consulta->rowCount() >= 1) { ?>
           <a href="Faltas.php?ID_turma=<?= $id_turma?>" class="btn btn-primary btn-sm">Faltas</a>
           <a href="GerarExcell.php?ID_turma=<?=$id_turma?>" class="btn btn-primary btn-sm">Gerar Excell <i class="fa-regular fa-file-excel"></i></a>
           <br><br>
-          <?php if ($consulta->rowCount() >= 1) { ?>
             <form method="get" align="right" id="meuForm">
               <input type="hidden" name="ID_turma" value="<?=$id_turma?>">
               <button type="submit" class="btn btn-warning btn-sm" name="Desligados"><i class="fa-solid fa-power-off"></i></button>
