@@ -1,7 +1,8 @@
 <?php
 require("config.php");
 $conexao = mysqli_connect('localhost', 'root', '', 'tg_05-012');
-
+$id = $_GET['id']; //pega o id da URL para mostrar o usuário
+$id_turma = $_GET['fk_ID_turma']; //pega o id da URL para mostrar o usuário
 if (isset($_POST['salvar'])) {
 
     $id = $_POST['id'];
@@ -30,7 +31,7 @@ if (isset($_POST['salvar'])) {
     $RendaF = $_POST['RendaF'];
     $Situacao = $_POST['Situacao'];
 
-    $sql = "update atiradores set NRa = '{$NRa}',
+    $sql = "update tb_atiradores set NRa = '{$NRa}',
                 NomeC = '{$NomeC}',
                 NomeG = '{$NomeG}',
                 NomePai = '{$NomePai}',
@@ -53,16 +54,15 @@ if (isset($_POST['salvar'])) {
                 CarteiraAss = '{$CarteiraAss}', 
                 RemuneracaoM = '{$RemuM}',
                 RendaF = '{$RendaF}',
-                Situacao = '{$Situacao}' where ID_ATDRS = '{$id}'";
+                Situacao = '{$Situacao}' where ID_ATDR = '{$id}'";
 
 
-    $consulta = $conn->prepare($sql);
+    $consulta = mysqli_query($conexao, $sql);
 
-    $mensagem = "Atirador alterado com sucesso";
+    header("Location: ListarAtiradores.php?mensagem=Atirador alterado com sucesso!&fk_ID_turma=$id_turma");
 }
 
-$id = $_GET['id']; //pega o id da URL para mostrar o usuário
-$sql = "select * from atiradores where ID_ATDRS = :id";
+$sql = "select * from tb_atiradores where ID_ATDR = :id";
 $consulta = $conn->prepare($sql);
 $consulta->bindParam(":id", $_GET['id']);
 $consulta->execute();
@@ -114,7 +114,7 @@ $linha = $consulta->fetch(PDO::FETCH_ASSOC);
             <h1>Alterar Usuario</h1>
         </center>
         <br>
-            <input type="hidden" name="id" value="<?= $linha['ID_ATDRS'] ?>">
+            <input type="hidden" name="id" value="<?= $linha['ID_ATDR'] ?>">
             <div class="col-md-3">
                 <label for="NRa" class="form-label">N° do RA</label>
                 <input name="NRa" type="text" class="form-control" id="NRa" required value="<?= $linha['NRa'] ?>">
@@ -251,20 +251,16 @@ $linha = $consulta->fetch(PDO::FETCH_ASSOC);
             </div>
             <div>
                 <button type="submit" class="btn btn-primary" name="salvar"> Salvar </button>
-                <button type="button" class="btn btn-warning" onclick="voltarPagina()">Voltar</button>
+                <a class="btn btn-warning" href="ListarAtiradores.php?fk_ID_turma=<?=$id_turma?>">Voltar</a>
             </div>
 
         </form>
-        <script>
-            function voltarPagina() {
-                window.history.back();
-              //Faz a página voltar de acordo com o histórico.
-            }
-        </script>
     </div>
 
 
 
 </body>
-
+<?php
+$conexao->close();
+?>
 </html>

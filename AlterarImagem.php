@@ -2,19 +2,19 @@
 <?php
 require("config.php");
 $conexao = mysqli_connect('localhost', 'root', '', 'tg_05-012');
-
+$id_turma = $_GET['fk_ID_turma']; //pega o id da URL para mostrar o usuário
 if (isset($_POST['salvar'])) {
 
-    $diretorio = "Upload/";
+    $diretorio = "Imagens/";
     $Imagem = $diretorio . $_FILES['Imagem']['name'];
   
     if (move_uploaded_file($_FILES['Imagem']['tmp_name'], $Imagem)) {
 
         $id = $_POST['id'];
-        $sql = "update atiradores set Imagem = '{$Imagem}' where ID_ATDRS = '{$id}'";
-        $consulta = $conn->prepare($sql);
+        $sql = "update tb_atiradores set Imagem = '{$Imagem}' where ID_ATDR = '{$id}'";
+        mysqli_query($conexao, $sql);
 
-        $mensagem = "IMAGEM ALTERADA COM SUCESSO!";
+        header("Location: ListarAtiradores.php?fk_ID_turma=$id_turma&mensagem=Imagem alterada com sucesso!");
     }else{
         $mensagem = "IMAGEM NÃO ALTERADA!";
     }
@@ -22,7 +22,7 @@ if (isset($_POST['salvar'])) {
 }
 
 $id = $_GET['id']; //pega o id da URL para mostrar o usuário
-$sql = "select * from atiradores where ID_ATDRS = :id";
+$sql = "select * from tb_atiradores where ID_ATDR = :id";
 $consulta = $conn->prepare($sql);
 $consulta->bindParam(":id", $_GET['id']);
 $consulta->execute();
@@ -70,23 +70,19 @@ $linha = $consulta->fetch(PDO::FETCH_ASSOC);
             <h1>Alterar Imagem</h1>
         </center>
         <br>
-            <input type="hidden" name="id" value="<?= $linha['ID_ATDRS'] ?>">
+            <input type="hidden" name="id" value="<?= $linha['ID_ATDR'] ?>">
             <div class="col-md-3">
                 <label for="Imagem" class="form-label"></label>
                 <input name="Imagem" type="file" class="form-control" id="Imagem">
             </div>
             <div>
                 <button type="submit" class="btn btn-primary" name="salvar"> Salvar </button>
-                <button type="button" class="btn btn-warning" onclick="voltarPagina()">Voltar</button>
+                <a class="btn btn-warning" href="ListarAtiradores.php?fk_ID_turma=<?=$id_turma?>">Voltar</a>
             </div>
         </form>
-        <script>
-            function voltarPagina() {
-                window.history.back();
-              //Faz a página voltar de acordo com o histórico.
-            }
-        </script>
     </div>
 </body>
-
+<?php
+$conexao->close();
+?>
 </html>

@@ -3,7 +3,7 @@
 $conexao = mysqli_connect('localhost', 'root', '', 'tg_05-012');
 
 
-$sql = "select * from turma order by Ano desc";
+$sql = "select * from tb_turma order by AnoTurma desc";
 $resultado = mysqli_query($conexao, $sql);
 // Impede o cache do navegador
 header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
@@ -45,26 +45,26 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Data no passado
     <center>
         <h1 style="color: white">Turmas:</h1>
     </center>
-    <div class="row row-cols-1 row-cols-md-3 g-5 ">
+    <div class="row row-cols-1 row-cols-md-3 g-5 p-3 mb-5">
         <?php while ($linha = mysqli_fetch_array($resultado)) : ?>
             <center>
                 <div class="col">
                     <div class="card text-dark bg-light mb-3" style="max-width: 18rem;">
-                        <div class="card-header">Turma de <?= $linha['Ano'] ?> <br>
+                        <div class="card-header">Turma de <?= $linha['AnoTurma'] ?> <br>
                         </div>
                         <div class="card-body">
                             <h5>Instrutor Chefe: <h5>
                                     <h5 class="card-title"><?=$linha['InstrutorC']?></h5><br>
-                                    <p class="card-text"><a class="btn btn-primary" href="ListarAtiradores.php?ID_turma=<?= $linha['ID'] ?>" role="button">Acessar</a></p>
+                                    <p class="card-text"><a class="btn btn-primary" href="ListarAtiradores.php?fk_ID_turma=<?= $linha['ID_Turma'] ?>" role="button">Acessar</a></p>
                         </div>
-                        <?php $cont = "select * from atiradores where ID_turma = {$linha['ID']}";
+                        <?php $cont = "select * from tb_atiradores where fk_ID_turma = {$linha['ID_Turma']}";
                         $contagem = mysqli_query($conexao, $cont);
 
                         $qtdsAtdr = mysqli_num_rows($contagem);
 
-                        $alterar = "update turma set QTDsATDR = '$qtdsAtdr' where ID = {$linha['ID']}";
+                        $alterar = "update tb_turma set QtdsAtiradores = '$qtdsAtdr' where ID_turma = {$linha['ID_Turma']}";
                         $aterado = mysqli_query($conexao, $alterar); ?>
-                        <div class="card-footer"> N° de Atdrs: <?= $linha['QTDsATDR'] ?></div>
+                        <div class="card-footer"> N° de Atdrs: <?= $linha['QtdsAtiradores'] ?></div>
                     </div>
                 </div>
             </center>
@@ -77,5 +77,7 @@ header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Data no passado
     </div>
 
 </body>
-
+<?php
+$conexao->close();
+?>
 </html>

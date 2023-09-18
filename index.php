@@ -1,5 +1,12 @@
 <!DOCTYPE html>
 
+<?php 
+
+if (isset($_GET['mensagem'])){
+$mensagem = $_GET['mensagem'];
+}
+?>
+
 <html lang="en">
 
 <head>
@@ -14,33 +21,44 @@
 
 
     <style>
-
         body {
 
-            background-repeat: no-repeat;
-            background-size: cover;
+            background-repeat: repeat;
+            overflow-x: hidden;
         }
-
     </style>
+</head>
 
-<body background="FotoTG.jpg">
+<body background="camuflado.png">
 
     <?php
     require_once('Nav.php');
     ?>
 
-        <center>
-    <div class="container" style="position: relative; top: 10vh;">
-    <div class="card w-50 bg-dark text-light" style="width: 18rem;">
-    <div class="card-body">
-    <h5 class="card-title"><p>Bem-vindo ao Tiro de Guerra - Cadastro de Atiradores!</p></h5>
-    <p class="card-text" style="text-align:center;">O Tiro de Guerra desempenha um papel fundamental na formação e treinamento de jovens brasileiros, e nossa missão é simplificar e aprimorar o processo de registro e acompanhamento de atiradores. Nossa plataforma permite que comandantes, instrutores e atiradores acessem e atualizem informações de forma fácil e segura, contribuindo para a excelência do treinamento militar.
-    </p> <p>Com dedicação,</p> <p>Monitor Meireles.</p>
+<div class="container">
+    <?php if (isset($mensagem)) { ?>
+      <div class="alert alert-success" role="alert">
+        <?php echo $mensagem ?>
+      </div>
+    <?php } ?>
   </div>
-  </div>
-  </center>
 
- 
+    <center>
+        <div class="container" style="position: relative; top: 10vh;">
+            <div class="card w-50 bg-dark text-light" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <p>Bem-vindo ao Tiro de Guerra - Cadastro de Atiradores!</p>
+                    </h5>
+                    <p class="card-text" style="text-align:center;">O Tiro de Guerra desempenha um papel fundamental na formação e treinamento de jovens brasileiros, e nossa missão é simplificar e aprimorar o processo de registro e acompanhamento de atiradores. Nossa plataforma permite que comandantes, instrutores e atiradores acessem e atualizem informações de forma fácil e segura, contribuindo para a excelência do treinamento militar.
+                    </p>
+                    <p>Com dedicação,</p>
+                    <p>Monitor Meireles.</p>
+                </div>
+            </div>
+    </center>
+
+
 </body>
 
 </html>

@@ -8,34 +8,22 @@ if (!$conexao) {
   die('Erro de conexão: ' . mysqli_connect_error());
 }
 
-// Parte dedicada a organização de data --
-// Obtém o ano atual do computador
-$ano_computador = date('Y');
+// Obtém o ano atual
+$ano_atual = date('Y');
 
-// Obtém a data real usando a API do WorldTimeAPI
-$url_api = 'http://worldtimeapi.org/api/ip';
-$data_api = file_get_contents($url_api);
-$data_json = json_decode($data_api, true);
+// Consulta para obter o ID_Turma se o ano for igual
+$sql = "SELECT ID_Turma FROM tb_turma WHERE AnoTurma = $ano_atual";
 
-// Verifica se a chamada à API foi bem-sucedida e obtém o ano real
-if ($data_json && isset($data_json['utc_datetime'])) {
-  $data_real = $data_json['utc_datetime'];
-  $ano_real = date('Y', strtotime($data_real));
+$result = $conexao->query($sql);
 
-  // Comparação dos anos
-  if (!($ano_computador === $ano_real)) {
-    $mensagem = "ATENÇÃO! A DATA DO COMPUTADOR ESTÁ ERRADA, O QUE OCASIONARÁ NO CADASTRO DE UM ATIRADOR EM UMA TURMA DE UM OUTRO ANO.";
-  }
-} else {
-  $mensagem = "Não foi possível obter a data!";
-}
-// Termina a organização de data --
+if ($result->num_rows > 0) {
+    // O ano atual corresponde a uma turma na tabela
+    $row = $result->fetch_assoc();
+    $id_turma = $row['ID_Turma'];
+} 
 
 // Codigo do envio dos dados ao banco.
 if (isset($_POST['cadastrar'])) {
-
-  $slq_2 = "SELECT * from turma";
-  $postar = mysqli_query($conexao, $slq_2);
 
   //2-receber os valores para inserir
   $NRa = $_POST['NRa'];
@@ -62,27 +50,9 @@ if (isset($_POST['cadastrar'])) {
   $RemuM = $_POST['RemuM'];
   $RendaF = $_POST['RendaF'];
 
-  // seleciona todos os atributos da tabela atiradores.
-  $sql = "SELECT * from atiradores";
-  $anoTurma = mysqli_query($conexao, $sql);
-
-  // Parte responsável por verificar o ano da turma a qual o atirador vai estar cadastrado.
-  if ($postar) {
-    // Verifica se há resultados retornados pela consulta
-    if (mysqli_num_rows($postar) > 0) {
-
-      // Itera sobre os resultados e imprime as informações
-      while ($row = mysqli_fetch_assoc($postar) and $row2 = mysqli_fetch_assoc($anoTurma)) {
-        if ($row['Ano'] == $row2['DataCadastro']) {
-          $id_turma = $row['ID'];
-        }
-      }
-    }
-  }
-  // Termina a parte de verificar o ano do atirador.
 
   //3-preparar a SQL com os dados a serem inseridos
-  $sql = "insert into atiradores (NRa, NomeC, NomeG, NomePai, TelPai, NomeMae, TelMae, DataNasc, LocalNasc, CPF, RG, Religiao, Escolaridade, NTituloEleitor, TipoSangue, Habilitacao, TelContato, Endereco, Profissao, HProfissao, CarteiraAss, RemuneracaoM, RendaF, ID_turma, Situacao)
+  $sql = "insert into tb_atiradores (NRa, NomeC, NomeG, NomePai, TelPai, NomeMae, TelMae, DataNasc, LocalNasc, CPF, RG, Religiao, Escolaridade, NTituloEleitor, TipoSangue, Habilitacao, TelContato, Endereco, Profissao, HProfissao, CarteiraAss, RemuneracaoM, RendaF, fk_ID_turma, Situacao)
                 values ('$NRa', '$NomeC', '$NomeG', '$NomePai', '$TelPai', '$NomeMae', '$TelMae', '$DataNasc', '$LocalNasc', '$CPF', '$RG', '$Religiao', '$Escolaridade', '$NTitulo', '$TipoS', '$Habilitacao', '$TelContato', '$Endereco', '$Profissao', '$HProfissao', '$CarteiraAss', '$RemuM', '$RendaF', '$id_turma', 'Ligado')";
 
   //executar a SQL
@@ -90,7 +60,7 @@ if (isset($_POST['cadastrar'])) {
 
   
   //Mensagem de Sucesso
-  $mensagem = "Usuario cadastrado com sucesso!";
+  header("Location: index.php?mensagem=Atirador cadastrado com sucesso!");
 }
 
 
@@ -109,23 +79,22 @@ if (isset($_POST['cadastrar'])) {
   <title>Cadastrar Atirador</title>
 
   <style>
+  
+  body {
 
-        body {
+    background-repeat: repeat;
+    overflow-x: hidden;
+}
 
-            background-repeat: repeat;
-            overflow-x: hidden;
-        }
 
-     
 
-  </style>
-
+</style>
 </head>
 
 <body background="camuflado.png">
 
   <?php
-  require_once('Nav.php')
+  require_once 'Nav.php';
   ?>
 
   <div class="container">
@@ -250,17 +219,13 @@ if (isset($_POST['cadastrar'])) {
       <br>
       <div class="container">
         <button type="submit" class="btn btn-primary" name="cadastrar" onclick="return confirm('Confirma cadastro?')">Cadastrar</button>
-        <button type="button" class="btn btn-warning" onclick="voltarPagina()">Voltar</button>
+        <a href="index.php" class="btn btn-warning">Voltar</a>
       </div>
     </form>
-    <script>
-      function voltarPagina() {
-        window.history.back();
-        //Faz a página voltar de acordo com o histórico.
-      }
-    </script>
   </div>
 
 </body>
-
+<?php
+$conexao->close();
+?>
 </html>

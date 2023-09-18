@@ -3,8 +3,8 @@
 require("config.php");
 
 // Consulta ao banco de dados
-$id_turma = $_GET['ID_turma'];
-$query = "SELECT * FROM atiradores where ID_turma = $id_turma order by Numero";
+$id_turma = $_GET['fk_ID_turma'];
+$query = "SELECT * FROM tb_atiradores where fk_ID_turma = $id_turma order by Numero_ATDR";
 $consulta = $conn->prepare($query);
 $consulta->execute();
 $resultado = $consulta->fetchAll(PDO::FETCH_OBJ);
@@ -14,14 +14,14 @@ $csvFileName = 'relatorio.csv';
 $csvFile = fopen($csvFileName, 'w');
 
 // Escreve os cabeçalhos no arquivo CSV
-$cabecalhos = ['Numero', 'Situacao', 'Numero Ra', 'Nome Completo', 'Nome de Guerra', 'Nome do Pai', 'Telefone do Pai', 'Nome da mãe', 'Telefone da Mãe', 'Data de nascimento', 'Local de nascimento', 'CPF', 'RG', 'Religiao', 'Escolaridade', 'Nº Titulo Eleitoral', 'Tipo sanguinio', 'Habilitação', 'Telefone de contato', 'Endereço', 'Profissão', 'Horario', 'Carteira Assinada', 'Remuneração mensal', 'Renda Familiar'];
+$cabecalhos = ['ATDR', 'Situacao', 'Numero Ra', 'Nome Completo', 'Nome de Guerra', 'Nome do Pai', 'Telefone do Pai', 'Nome da mãe', 'Telefone da Mãe', 'Data de nascimento', 'Local de nascimento', 'CPF', 'RG', 'Religiao', 'Escolaridade', 'Nº Titulo Eleitoral', 'Tipo sanguinio', 'Habilitação', 'Telefone de contato', 'Endereço', 'Profissão', 'Horario', 'Carteira Assinada', 'Remuneração mensal', 'Renda Familiar'];
 
 fputcsv($csvFile, $cabecalhos);
 
 // Escreve os dados no arquivo CSV
 foreach($resultado as $linha){
     $data = [
-        $linha->Numero,
+        $linha->Numero_ATDR,
         $linha->Situacao,
         $linha->NRa,
         $linha->NomeC,

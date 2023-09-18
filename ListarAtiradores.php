@@ -4,15 +4,15 @@ require("config.php");
 
 $conexao = mysqli_connect('localhost', 'root', '', 'tg_05-012');
 
-$id_turma = $_GET['ID_turma']; //pega o id da URL para mostrar o usuário de acordo com a turma
-$sql = "select * from atiradores where ID_turma = :id";
+$id_turma = $_GET['fk_ID_turma']; //pega o id da URL para mostrar o usuário de acordo com a turma
+$sql = "select * from tb_atiradores where fk_ID_turma = :id";
 $consulta = $conn->prepare($sql);
 $consulta->bindParam(":id", $id_turma);
 $consulta->execute();
 $resultado = $consulta->fetchAll(PDO::FETCH_OBJ);
 
 //verifica o ano da turma de acordo com o ID da turma
-$sql_turma = "select * from turma where ID = :id";
+$sql_turma = "select * from tb_turma where ID_Turma = :id";
 $consulta_turma = $conn->prepare($sql_turma);
 $consulta_turma->bindParam(":id", $id_turma);
 $consulta_turma->execute();
@@ -20,13 +20,18 @@ $resultado_turma = $consulta_turma->fetch(PDO::FETCH_OBJ);
 
 //verifica se a turma possui registros nela
 
-if ($consulta_turma->rowCount() >= 1) {
+if ($consulta->rowCount() >= 1) {
 
   $linha = $consulta_turma->rowCount();
 
 //Executa o camando de deletar atiradores
   if (isset($_GET['id'])) {
-    $sql_delete_atdr = "delete from atiradores where ID_ATDRS = :id";
+    $sql_delete_Faltas = "delete from tb_faltas where fk_ID_ATDR = :id";
+    $consulta_delete_Faltas = $conn->prepare($sql_delete_Faltas);
+    $consulta_delete_Faltas->bindParam(":id", $_GET["id"]);
+    $consulta_delete_Faltas->execute();
+    $resultado_delete_Faltas = $consulta_delete_Faltas->fetchAll(PDO::FETCH_OBJ);
+    $sql_delete_atdr = "delete from tb_atiradores where ID_ATDR = :id";
     $consulta_delete_atdr = $conn->prepare($sql_delete_atdr);
     $consulta_delete_atdr->bindParam(":id", $_GET["id"]);
     $consulta_delete_atdr->execute();
@@ -37,7 +42,7 @@ if ($consulta_turma->rowCount() >= 1) {
 
   //Reconhece os atiradores desligados
   if (!(isset($_GET['Desligados']))) {
-    $sql_atdrs = "select * from atiradores where ID_turma = :id order by NomeC asc";
+    $sql_atdrs = "select * from tb_atiradores where fk_ID_turma = :id order by NomeC asc";
     $consulta_atdrs = $conn->prepare($sql_atdrs);
     $consulta_atdrs->bindParam(":id", $id_turma);
     $consulta_atdrs->execute();
@@ -45,7 +50,7 @@ if ($consulta_turma->rowCount() >= 1) {
   }
 
   if (isset($_GET['Desligados'])) {
-    $sql_atdrs = "select * from atiradores where ID_turma = :id and Situacao = 'Desligado' order by NomeC asc";
+    $sql_atdrs = "select * from tb_atiradores where fk_ID_turma = :id and Situacao = 'Desligado' order by NomeC asc";
     $consulta_atdrs = $conn->prepare($sql_atdrs);
     $consulta_atdrs->bindParam(":id", $id_turma);
     $consulta_atdrs->execute();
@@ -54,7 +59,7 @@ if ($consulta_turma->rowCount() >= 1) {
 
   //Organiza os atiradores por ordem alfabética
   if (isset($_GET['AlfaCresc'])) {
-    $sql_atdrs = "select * from atiradores where ID_turma = :id order by NomeC asc";
+    $sql_atdrs = "select * from tb_atiradores where fk_ID_turma = :id order by NomeC asc";
     $consulta_atdrs = $conn->prepare($sql_atdrs);
     $consulta_atdrs->bindParam(":id", $id_turma);
     $consulta_atdrs->execute();
@@ -62,7 +67,7 @@ if ($consulta_turma->rowCount() >= 1) {
   }
 
   if (isset($_GET['AlfaDesc'])) {
-    $sql_atdrs = "select * from atiradores where ID_turma = :id order by NomeC desc";
+    $sql_atdrs = "select * from tb_atiradores where fk_ID_turma = :id order by NomeC desc";
     $consulta_atdrs = $conn->prepare($sql_atdrs);
     $consulta_atdrs->bindParam(":id", $id_turma);
     $consulta_atdrs->execute();
@@ -72,7 +77,7 @@ if ($consulta_turma->rowCount() >= 1) {
   //Busca os atiradores de acordo com o nome de guerra ou numero
   if (isset($_GET['Buscar'])) {
     $nome = $_GET['Busca'];
-    $sql_atdrs = "select * from atiradores where ID_turma = :id and (NomeG like '$nome%' or Numero = '$nome') order by NomeC desc";
+    $sql_atdrs = "select * from tb_atiradores where fk_ID_turma = :id and (NomeG like '$nome%' or Numero_ATDR = '$nome') order by NomeC desc";
     $consulta_atdrs = $conn->prepare($sql_atdrs);
     $consulta_atdrs->bindParam(":id", $id_turma);
     $consulta_atdrs->execute();
@@ -82,7 +87,7 @@ if ($consulta_turma->rowCount() >= 1) {
   //parte responsável por numerar os atiradores de acordo com sua ordem alfabética
 
   //Recuperar os registros da tabela em ordem alfabética
-  $sql_ordemA = "SELECT ID_ATDRS, NomeC FROM atiradores where ID_turma = id: ORDER BY NomeC ASC";
+  $sql_ordemA = "SELECT ID_ATDR, NomeC FROM tb_atiradores where fk_ID_turma = id: ORDER BY NomeC ASC";
   $consulta_ordemA = $conn->prepare($sql_ordemA);
 
   // Inicializar o contador
@@ -90,11 +95,11 @@ if ($consulta_turma->rowCount() >= 1) {
 
   // Atualizar a tabela com os números atribuídos em ordem alfabética
   foreach ($resultado_atdrs as $row){
-    $id = $row->ID_ATDRS;
+    $id = $row->ID_ATDR;
     $numero_alfabetico = $contador;
 
     // Atualizar o registro com o número atribuído
-    $sql_update = "UPDATE atiradores SET Numero = $numero_alfabetico WHERE ID_ATDRS = $id";
+    $sql_update = "UPDATE tb_atiradores SET Numero_ATDR = $numero_alfabetico WHERE ID_ATDR = $id";
     mysqli_query($conexao, $sql_update);
     $consulta_update = $conn->prepare($sql_update);
 
@@ -104,7 +109,6 @@ if ($consulta_turma->rowCount() >= 1) {
 } else {
   $mensagem = "NENHUM ATIRADOR ENCONTRADO!";
 }
-//var_dump($resultado_atdrs);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -140,21 +144,25 @@ if ($consulta_turma->rowCount() >= 1) {
   <?php
   require_once('Nav.php');
   ?>
+    <?php if (isset($mensagem)) : ?>
+      <div class="alert alert-success" role="alert">
+        <?= $mensagem?>
+      </div>
+    <?php endif; ?>
 
   <br>
-
   <div class="container">
     <div class="card bg-dark text-light">
       <div class="card-body">
         <center>
-          <h2 class="card-title">Atiradores da turma <?=$resultado_turma->Ano?></h2>
-          <a href="ListarAtiradores.php?ID_turma=<?= $id_turma ?>" class="btn btn-primary btn-sm">Atualizar</a>
+          <h2 class="card-title">Atiradores da turma <?=$resultado_turma->AnoTurma?></h2>
+          <a href="ListarAtiradores.php?fk_ID_turma=<?= $id_turma ?>" class="btn btn-primary btn-sm">Atualizar</a>
           <?php if ($consulta->rowCount() >= 1) { ?>
-          <a href="Faltas.php?ID_turma=<?= $id_turma?>" class="btn btn-primary btn-sm">Faltas</a>
-          <a href="GerarExcell.php?ID_turma=<?=$id_turma?>" class="btn btn-primary btn-sm">Gerar Excell <i class="fa-regular fa-file-excel"></i></a>
+          <a href="Faltas.php?fk_ID_turma=<?= $id_turma?>" class="btn btn-primary btn-sm">Faltas</a>
+          <a href="GerarExcell.php?fk_ID_turma=<?=$id_turma?>" class="btn btn-primary btn-sm">Gerar Excell <i class="fa-regular fa-file-excel"></i></a>
           <br><br>
             <form method="get" align="right" id="meuForm">
-              <input type="hidden" name="ID_turma" value="<?=$id_turma?>">
+              <input type="hidden" name="fk_ID_turma" value="<?=$id_turma?>">
               <button type="submit" class="btn btn-warning btn-sm" name="Desligados"><i class="fa-solid fa-power-off"></i></button>
               <button type="submit" class="btn btn-warning btn-sm" name="AlfaCresc"><i class="fa-solid fa-arrow-down-z-a"></i></button>
               <button type="submit" class="btn btn-warning btn-sm" name="AlfaDesc"><i class="fa-solid fa-arrow-up-z-a"></i></button>
@@ -165,12 +173,6 @@ if ($consulta_turma->rowCount() >= 1) {
         </center>
       </div>
     </div>
-
-    <?php if (isset($mensagem)) : ?>
-      <div class="alert alert-success" role="alert">
-        <?= $mensagem ?>
-      </div>
-    <?php endif; ?>
 
     <div class="table-responsive bg-dark">
       <table class="table table-striped table-dark" style="text-align: center;">
@@ -210,7 +212,7 @@ if ($consulta_turma->rowCount() >= 1) {
           <?php foreach ($resultado_atdrs as $linha ) { 
             ?>
             <tr>
-              <td><?= $linha->Numero ?></td>
+              <td><?= $linha->Numero_ATDR ?></td>
               <td>
                 <?php
                 if ($linha->Imagem) :
@@ -250,16 +252,16 @@ if ($consulta_turma->rowCount() >= 1) {
               <td><?= $linha->RemuneracaoM ?></td>
               <td><?= $linha->RendaF ?></td>
               <td>
-                <a href="AlterarAtiradores.php?id=<?= $linha->ID_ATDRS?>">
-                  <button type="button" class="btn btn-outline-primary"><i class="fa-solid fa-pen-to-square"></i></button>
+                <a href="AlterarAtiradores.php?id=<?= $linha->ID_ATDR?>&fk_ID_turma=<?=$id_turma?>">
+                  <button type="button" class="btn btn-outline-warning"><i class="fa-solid fa-pen-to-square"></i></button>
                 </a>
-                <a href="ListarAtiradores.php?ID_turma=<?= $linha->ID_turma ?>&id=<?= $linha->ID_ATDRS ?>" onclick="return confirm('Confirma exclusão?')">
-                  <button type="button" class="btn btn-outline-primary"><i class="fa-solid fa-trash-can"></i></button>
+                <a href="ListarAtiradores.php?fk_ID_turma=<?= $linha->fk_ID_turma ?>&id=<?= $linha->ID_ATDR ?>" onclick="return confirm('Confirma exclusão?')">
+                  <button type="button" class="btn btn-outline-danger"><i class="fa-solid fa-trash-can"></i></button>
                 </a>
               </td>
               <td>
                 <br>
-                <a href="AlterarImagem.php?id=<?= $linha->ID_ATDRS?>">
+                <a href="AlterarImagem.php?id=<?= $linha->ID_ATDR?>&fk_ID_turma=<?=$id_turma?>">
                   <button type="button" class="btn btn-outline-primary"><i class="fa-solid fa-image"></i></button>
                 </a>
               </td>
@@ -291,5 +293,7 @@ if ($consulta_turma->rowCount() >= 1) {
 
 
 </body>
-
+<?php
+$conexao->close();
+?>
 </html>
